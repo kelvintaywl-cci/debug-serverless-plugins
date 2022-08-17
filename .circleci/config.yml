@@ -1,0 +1,33 @@
+version: 2.1
+
+jobs:
+  sls:
+    docker:
+      - image: cimg/go:1.18.1-node
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: check Node
+          command: |
+            node -v
+            npm -v
+            npm list -g --depth=0
+      - run:
+          name: install Serverless via NPM
+          command: sudo npm install -g serverless
+      - run:
+          name: install plugins
+          command: |
+            sls plugin install -n serverless-dotenv-plugin --stage local
+            sls plugin install -n serverless-offline --stage local
+            sls plugin install -n serverless-vpc-discovery --stage local
+            sls plugin install -n serverless-plugin-split-stacks --stage local
+      - run:
+          name: check installed NPM packages
+          command: npm list -g --depth=0     
+
+workflows:
+  main:
+    jobs:
+      - sls
